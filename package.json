@@ -1,0 +1,20 @@
+{
+  "name": "online-watching",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "concurrently -n server,client -c green,magenta \"npm:dev:server\" \"npm:dev:client\"",
+    "dev:client": "npm run dev -w apps/client",
+    "dev:server": "npm run dev -w apps/server",
+    "build": "npm run build --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
+    "prisma:generate": "npm run prisma:generate -w apps/server",
+    "prisma:migrate": "npm run prisma:migrate -w apps/server"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}

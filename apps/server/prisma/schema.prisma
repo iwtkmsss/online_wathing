@@ -1,0 +1,116 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+enum MediaType {
+  FILM
+  SERIES
+  EPISODE
+}
+
+enum FriendStatus {
+  PENDING
+  ACCEPTED
+  BLOCKED
+}
+
+model User {
+  id                 String     @id @default(cuid())
+  nickname           String     @unique
+  totalWatchSeconds  Int        @default(0)
+  createdAt          DateTime   @default(now())
+  updatedAt          DateTime   @updatedAt
+
+  createdRooms       Room[]     @relation("RoomCreator")
+  progress           Progress[]
+  sentFriendships    Friend[]   @relation("FriendRequester")
+  receivedFriendships Friend[]  @relation("FriendAddressee")
+}
+
+model Room {
+  id                 String    @id @default(cuid())
+  name               String
+  isPublic           Boolean   @default(true)
+  passwordHash       String?
+  currentTimeSeconds Float     @default(0)
+  isPlaying          Boolean   @default(false)
+  playbackRate       Float     @default(1)
+  lastStateAt        DateTime?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
+
+  creatorId          String
+  creator            User      @relation("RoomCreator", fields: [creatorId], references: [id], onDelete: Cascade)
+  mediaId            String?
+  media              Media?    @relation(fields: [mediaId], references: [id], onDelete: SetNull)
+
+  @@index([isPublic])
+  @@index([creatorId])
+  @@index([mediaId])
+}
+
+model Media {
+  id               String     @id @default(cuid())
+  libraryKey       String     @unique
+  type             MediaType
+  title            String
+  description      String?
+  filePath         String?    @unique
+  mimeType         String?
+  sizeBytes        BigInt?
+  durationSeconds  Float?
+  isAvailable      Boolean    @default(true)
+  missingSince     DateTime?
+  seasonNumber     Int?
+  episodeNumber    Int?
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+
+  parentId         String?
+  parent           Media?     @relation("MediaHierarchy", fields: [parentId], references: [id], onDelete: Cascade)
+  children         Media[]    @relation("MediaHierarchy")
+  rooms            Room[]
+  progress         Progress[]
+
+  @@index([type])
+  @@index([parentId])
+}
+
+model Progress {
+  id                String   @id @default(cuid())
+  watchedSeconds    Float    @default(0)
+  totalWatchSeconds Int      @default(0)
+  completed         Boolean  @default(false)
+  lastWatchedAt     DateTime @default(now())
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  userId            String
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  mediaId           String
+  media             Media    @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, mediaId])
+  @@index([mediaId])
+}
+
+model Friend {
+  id           String       @id @default(cuid())
+  status       FriendStatus @default(PENDING)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  requesterId  String
+  requester    User         @relation("FriendRequester", fields: [requesterId], references: [id], onDelete: Cascade)
+  addresseeId  String
+  addressee    User         @relation("FriendAddressee", fields: [addresseeId], references: [id], onDelete: Cascade)
+
+  @@unique([requesterId, addresseeId])
+  @@index([addresseeId])
+  @@index([status])
+}
