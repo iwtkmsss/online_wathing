@@ -1,0 +1,395 @@
+.hero-person-section {
+  position: relative;
+  width: 100%;
+  padding: 0.65rem 0 1.15rem;
+}
+
+.hero-person-fullscreen {
+  display: flex;
+  min-height: 0;
+  height: 100%;
+  padding: 0.3rem 0 0.4rem;
+}
+
+.hero-person-fullscreen .hero-person-content {
+  min-height: 0;
+  height: 100%;
+  width: 100%;
+  justify-content: flex-start;
+}
+
+.hero-person-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.65rem;
+  text-align: center;
+}
+
+.hero-person-eyebrow {
+  margin: 0;
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.19em;
+  text-transform: uppercase;
+  color: rgba(57, 255, 20, 0.85);
+}
+
+.hero-person-title {
+  margin: 0;
+  font-size: clamp(2.05rem, 4.1vw, 3.4rem);
+  line-height: 1.03;
+  font-weight: 900;
+  color: #ffffff;
+  text-shadow: 0 0 18px rgba(57, 255, 20, 0.14), 0 0 28px rgba(155, 92, 255, 0.18);
+}
+
+.hero-person-top {
+  width: min(100%, 620px);
+  margin-top: 0.15rem;
+}
+
+.hero-person-image-wrapper {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  width: min(100%, 700px);
+  height: clamp(390px, 66vh, 670px);
+  margin-top: -0.45rem;
+  overflow: visible;
+  cursor: default;
+  touch-action: pan-y;
+}
+
+.hero-person-image-wrapper-clickable {
+  cursor: pointer;
+}
+
+.hero-person-image-wrapper-clickable:focus-visible {
+  border-radius: 1rem;
+  outline: 2px solid rgba(57, 255, 20, 0.82);
+  outline-offset: 0.35rem;
+}
+
+.hero-person-fullscreen .hero-person-image-wrapper {
+  flex: 1 1 auto;
+  min-height: 0;
+  height: auto;
+  margin-top: -0.2rem;
+}
+
+.hero-person-image-wrapper::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 1rem;
+  width: min(63vw, 390px);
+  height: 26px;
+  border-radius: 50%;
+  transform: translateX(-50%);
+  background: radial-gradient(
+    ellipse at center,
+    rgba(57, 255, 20, 0.36) 0%,
+    rgba(155, 92, 255, 0.22) 44%,
+    rgba(0, 0, 0, 0) 78%
+  );
+  filter: blur(11px);
+  pointer-events: none;
+  transition: transform 0.45s ease, opacity 0.45s ease;
+}
+
+.hero-person-img {
+  position: absolute;
+  left: 50%;
+  bottom: 0.8rem;
+  width: min(80vw, 520px);
+  height: calc(100% - 0.8rem);
+  object-fit: contain;
+  object-position: center bottom;
+  pointer-events: none;
+  will-change: transform, opacity, filter;
+  transition: opacity 0.16s ease, transform 0.16s ease, filter 0.16s ease;
+}
+
+.hero-person-img-official {
+  opacity: 1;
+  transform: translateX(-50%) scale(1);
+  filter: drop-shadow(0 18px 36px rgba(0, 0, 0, 0.52));
+}
+
+.hero-person-img-alt {
+  opacity: 0;
+  transform: translateX(-50%) scale(0.99);
+  filter: drop-shadow(0 20px 40px rgba(57, 255, 20, 0.2));
+}
+
+.hero-person-image-wrapper-touch-active .hero-person-img-official {
+  opacity: 0;
+  transform: translateX(-50%) scale(0.98);
+  filter: drop-shadow(0 14px 32px rgba(0, 0, 0, 0.3));
+}
+
+.hero-person-image-wrapper-touch-active .hero-person-img-alt {
+  opacity: 1;
+  transform: translateX(-50%) scale(1.03);
+  filter: drop-shadow(0 22px 46px rgba(57, 255, 20, 0.34))
+    drop-shadow(0 0 14px rgba(155, 92, 255, 0.2));
+}
+
+.hero-person-image-wrapper-touch-active::before {
+  transform: translateX(-50%) scale(1.03);
+  opacity: 1;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .hero-person-image-wrapper:hover .hero-person-img-official {
+    opacity: 0;
+    transform: translateX(-50%) scale(0.98);
+    filter: drop-shadow(0 14px 32px rgba(0, 0, 0, 0.3));
+  }
+
+  .hero-person-image-wrapper:hover .hero-person-img-alt {
+    opacity: 1;
+    transform: translateX(-50%) scale(1.03);
+    filter: drop-shadow(0 22px 46px rgba(57, 255, 20, 0.34))
+      drop-shadow(0 0 14px rgba(155, 92, 255, 0.2));
+  }
+
+  .hero-person-image-wrapper:hover::before {
+    transform: translateX(-50%) scale(1.03);
+    opacity: 1;
+  }
+}
+
+.hero-person-login {
+  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.68rem;
+  border-radius: 0.85rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: linear-gradient(
+    140deg,
+    rgba(255, 255, 255, 0.04) 0%,
+    rgba(57, 255, 20, 0.05) 42%,
+    rgba(155, 92, 255, 0.08) 100%
+  );
+  padding: 0.6rem;
+  backdrop-filter: blur(10px);
+}
+
+.hero-person-input {
+  flex: 1 1 250px;
+  min-height: 45px;
+  border-radius: 0.56rem;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(0, 0, 0, 0.52);
+  color: #ffffff;
+  padding: 0 0.88rem;
+  outline: none;
+  transition: border-color 0.22s ease, box-shadow 0.22s ease;
+}
+
+.hero-person-input::placeholder {
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.hero-person-input:focus {
+  border-color: #39ff14;
+  box-shadow: 0 0 0 2px rgba(57, 255, 20, 0.12), 0 0 16px rgba(57, 255, 20, 0.2);
+}
+
+.hero-person-button {
+  min-height: 45px;
+  border: 0;
+  border-radius: 0.56rem;
+  background: linear-gradient(130deg, #39ff14 0%, #6fff4e 42%, #9b5cff 120%);
+  color: #060706;
+  font-weight: 800;
+  padding: 0 1.03rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  cursor: pointer;
+  transition: transform 0.22s ease, box-shadow 0.22s ease, opacity 0.22s ease;
+}
+
+.hero-person-button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 0 20px rgba(57, 255, 20, 0.34), 0 0 30px rgba(155, 92, 255, 0.26);
+}
+
+.hero-person-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.64;
+}
+
+.hero-person-logged {
+  display: inline-flex;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 0.85rem;
+  border: 1px solid rgba(57, 255, 20, 0.28);
+  background: linear-gradient(
+    140deg,
+    rgba(57, 255, 20, 0.11) 0%,
+    rgba(57, 255, 20, 0.06) 50%,
+    rgba(155, 92, 255, 0.08) 100%
+  );
+  padding: 0.62rem 0.86rem;
+  color: rgba(255, 255, 255, 0.86);
+  font-size: 0.9rem;
+}
+
+.hero-person-logged-name {
+  display: inline-block;
+  color: #ffffff;
+  font-size: clamp(1.12rem, 2vw, 1.45rem);
+  font-weight: 900;
+  line-height: 1;
+  text-shadow: 0 0 14px rgba(57, 255, 20, 0.42), 0 0 20px rgba(155, 92, 255, 0.3);
+}
+
+@media (max-width: 1024px) {
+  .hero-person-image-wrapper {
+    height: clamp(360px, 62vh, 590px);
+  }
+
+  .hero-person-fullscreen .hero-person-image-wrapper {
+    height: auto;
+    min-height: 0;
+  }
+
+  .hero-person-img {
+    width: min(86vw, 470px);
+  }
+}
+
+@media (max-width: 640px) {
+  .hero-person-section {
+    padding-top: 0.25rem;
+    padding-bottom: 0;
+  }
+
+  .hero-person-fullscreen {
+    padding: 0.15rem 0 0;
+  }
+
+  .hero-person-fullscreen .hero-person-content {
+    justify-content: flex-start;
+  }
+
+  .hero-person-content {
+    gap: 0.32rem;
+    height: 100%;
+  }
+
+  .hero-person-eyebrow {
+    font-size: 0.58rem;
+    letter-spacing: 0.14em;
+  }
+
+  .hero-person-title {
+    font-size: clamp(1.55rem, 8.2vw, 2.1rem);
+    line-height: 0.98;
+  }
+
+  .hero-person-top {
+    width: min(100%, 92vw);
+    margin-top: 0;
+  }
+
+  .hero-person-login {
+    padding: 0.42rem;
+    gap: 0.45rem;
+    border-radius: 0.72rem;
+  }
+
+  .hero-person-input,
+  .hero-person-button {
+    width: 100%;
+    min-height: 39px;
+    font-size: 0.88rem;
+  }
+
+  .hero-person-input {
+    padding: 0 0.72rem;
+  }
+
+  .hero-person-button {
+    padding: 0 0.82rem;
+  }
+
+  .hero-person-image-wrapper {
+    width: 100%;
+    height: clamp(300px, 55svh, 445px);
+    margin-top: -0.45rem;
+  }
+
+  .hero-person-fullscreen .hero-person-image-wrapper {
+    flex: 1 1 auto;
+    min-height: 0;
+    height: auto;
+    margin-top: -0.5rem;
+  }
+
+  .hero-person-img {
+    width: min(80vw, 340px);
+    bottom: 0.1rem;
+    height: calc(100% - 0.1rem);
+  }
+
+  .hero-person-image-wrapper::before {
+    bottom: 0.45rem;
+    width: min(54vw, 270px);
+    height: 20px;
+  }
+
+  .hero-person-logged {
+    font-size: 0.78rem;
+    padding: 0.48rem 0.62rem;
+  }
+}
+
+@media (max-width: 420px) {
+  .hero-person-content {
+    gap: 0.28rem;
+  }
+
+  .hero-person-eyebrow {
+    font-size: 0.54rem;
+  }
+
+  .hero-person-title {
+    font-size: clamp(1.42rem, 7.7vw, 1.9rem);
+  }
+
+  .hero-person-login {
+    padding: 0.36rem;
+  }
+
+  .hero-person-input,
+  .hero-person-button {
+    min-height: 37px;
+    font-size: 0.84rem;
+  }
+
+  .hero-person-image-wrapper,
+  .hero-person-fullscreen .hero-person-image-wrapper {
+    min-height: clamp(285px, 52svh, 395px);
+    height: clamp(285px, 52svh, 395px);
+    margin-top: -0.55rem;
+  }
+
+  .hero-person-img {
+    width: min(80vw, 315px);
+    bottom: 0.05rem;
+    height: calc(100% - 0.05rem);
+  }
+}

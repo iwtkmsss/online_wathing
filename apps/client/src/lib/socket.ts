@@ -1,8 +1,7 @@
 import { io } from "socket.io-client";
+import { apiUrl } from "./network";
 
-const socketUrl = import.meta.env.VITE_API_URL ?? "http://localhost:4000";
-
-export const socket = io(socketUrl, {
+export const socket = io(apiUrl, {
   autoConnect: false,
   transports: ["websocket"]
 });

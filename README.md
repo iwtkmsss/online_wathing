@@ -26,6 +26,55 @@ npm run prisma:migrate -w apps/server -- --name <migration-name>
 
 Copy `.env.example` to `.env` when you need custom ports, admin credentials, media root, or database URL.
 
+## Public Dev Access
+
+For your current network setup:
+
+- Public IP: `185.19.5.87`
+- Local PC IP: `192.168.31.229`
+- Client port: `5173`
+- API/Socket/stream port: `4000`
+
+Router forwarding should be:
+
+- TCP `5173` -> `192.168.31.229:5173`
+- TCP `4000` -> `192.168.31.229:4000`
+
+Run the public preset:
+
+```bash
+npm run dev:public:ip
+```
+
+External users should open:
+
+```text
+http://185.19.5.87:5173
+```
+
+The frontend API and Socket.io URL will be forced to:
+
+```text
+http://185.19.5.87:4000
+```
+
+Useful checks on the host PC:
+
+```bash
+ss -ltnp | grep -E ':(5173|4000)'
+curl http://localhost:4000/health
+curl http://192.168.31.229:4000/health
+```
+
+Useful checks from another network:
+
+```text
+http://185.19.5.87:5173
+http://185.19.5.87:4000/health
+```
+
+If the external health URL does not open, the problem is outside the app: router forwarding, Linux firewall, wrong WAN IP, provider filtering, or CG-NAT.
+
 ## Step 2 API
 
 - `POST /api/auth/nickname` - login/register with `{ "nickname": "Neo" }`.

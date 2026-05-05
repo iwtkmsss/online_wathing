@@ -3,7 +3,7 @@ import { Router } from "express";
 import { uploadTempDir, config } from "../config.js";
 import { requireAdmin } from "../middleware/adminAuth.js";
 import { prisma } from "../lib/prisma.js";
-import { markMediaFileDeleted, scanMediaLibrary, uploadMedia } from "../services/mediaService.js";
+import { markMediaFileDeleted, scanMediaLibrary, uploadMedia, upsertSeries } from "../services/mediaService.js";
 import { mediaDto } from "../utils/dto.js";
 import { asyncHandler, HttpError } from "../utils/http.js";
 import { removeFileIfExists } from "../utils/mediaPaths.js";
@@ -41,6 +41,20 @@ adminRouter.post(
   asyncHandler(async (_req, res) => {
     const result = await scanMediaLibrary();
     res.json(result);
+  })
+);
+
+adminRouter.post(
+  "/media/series",
+  asyncHandler(async (req, res) => {
+    const title = requiredString(req.body?.title, "title", 180);
+    const description = optionalString(req.body?.description, "description");
+    const result = await upsertSeries(title, description);
+
+    res.status(result.created ? 201 : 200).json({
+      media: mediaDto(result.media),
+      created: result.created
+    });
   })
 );
 

@@ -20,7 +20,7 @@ export const useSessionStore = create<SessionState>()(
       reset: () => set({ nickname: "", user: null })
     }),
     {
-      name: "darinkas-edition-session"
+      name: "viktorias-edition-session"
     }
   )
 );

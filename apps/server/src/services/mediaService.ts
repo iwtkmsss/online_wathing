@@ -113,30 +113,41 @@ const upsertMedia = async (data: {
   return { media, created: true } satisfies UpsertResult;
 };
 
-export const getOrCreateSeries = async (title: string) => {
+export const upsertSeries = async (title: string, description?: string) => {
   const libraryKey = seriesLibraryKey(title);
   const existing = await prisma.media.findUnique({ where: { libraryKey } });
 
   if (existing) {
-    return prisma.media.update({
+    const media = await prisma.media.update({
       where: { id: existing.id },
       data: {
         type: MediaType.SERIES,
         title,
+        ...(description !== undefined ? { description } : {}),
         isAvailable: true,
         missingSince: null
       }
     });
+
+    return { media, created: false } satisfies UpsertResult;
   }
 
-  return prisma.media.create({
+  const media = await prisma.media.create({
     data: {
       libraryKey,
       type: MediaType.SERIES,
       title,
+      description,
       isAvailable: true
     }
   });
+
+  return { media, created: true } satisfies UpsertResult;
+};
+
+export const getOrCreateSeries = async (title: string) => {
+  const result = await upsertSeries(title);
+  return result.media;
 };
 
 const registerFilm = async (absolutePath: string, title?: string, description?: string) => {
@@ -327,10 +338,43 @@ export const uploadMedia = async (input: UploadInput) => {
 };
 
 export const markMediaFileDeleted = async (mediaId: string) => {
-  const media = await prisma.media.findUnique({ where: { id: mediaId } });
+  const media = await prisma.media.findUnique({
+    where: { id: mediaId },
+    include: {
+      children: true
+    }
+  });
 
   if (!media) {
     throw new HttpError(404, "Media not found");
+  }
+
+  if (media.type === MediaType.SERIES) {
+    for (const episode of media.children) {
+      if (episode.filePath) {
+        await removeFileIfExists(resolveMediaPath(episode.filePath));
+      }
+    }
+
+    const deletedAt = new Date();
+    await prisma.media.updateMany({
+      where: { parentId: media.id },
+      data: {
+        filePath: null,
+        mimeType: null,
+        sizeBytes: null,
+        isAvailable: false,
+        missingSince: deletedAt
+      }
+    });
+
+    return prisma.media.update({
+      where: { id: media.id },
+      data: {
+        isAvailable: false,
+        missingSince: deletedAt
+      }
+    });
   }
 
   if (!media.filePath) {
@@ -343,6 +387,9 @@ export const markMediaFileDeleted = async (mediaId: string) => {
   return prisma.media.update({
     where: { id: media.id },
     data: {
+      filePath: null,
+      mimeType: null,
+      sizeBytes: null,
       isAvailable: false,
       missingSince: new Date()
     }

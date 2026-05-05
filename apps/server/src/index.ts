@@ -6,6 +6,7 @@ import { config } from "./config.js";
 import { prisma } from "./lib/prisma.js";
 import { adminRouter } from "./routes/adminRoutes.js";
 import { authRouter, userRouter } from "./routes/authRoutes.js";
+import { friendRouter } from "./routes/friendRoutes.js";
 import { mediaRouter } from "./routes/mediaRoutes.js";
 import { roomRouter } from "./routes/roomRoutes.js";
 import { registerWatchSocket } from "./socket/watchSocket.js";
@@ -15,16 +16,44 @@ import { errorHandler, HttpError } from "./utils/http.js";
 const app = express();
 const httpServer = createServer(app);
 
+const localhostOriginPattern = /^http:\/\/(?:localhost|127\.0\.0\.1):\d+$/;
+const devOriginPattern = /^https?:\/\/[^/]+:\d+$/;
+
+const isOriginAllowed = (origin: string | undefined) => {
+  if (!origin) {
+    return true;
+  }
+
+  if (config.clientOrigins.includes("*") || config.clientOrigins.includes(origin)) {
+    return true;
+  }
+
+  if (config.allowDevOrigins && devOriginPattern.test(origin)) {
+    return true;
+  }
+
+  return localhostOriginPattern.test(origin);
+};
+
+const corsOriginHandler: cors.CorsOptions["origin"] = (origin, callback) => {
+  if (isOriginAllowed(origin ?? undefined)) {
+    callback(null, true);
+    return;
+  }
+
+  callback(new Error("Origin is not allowed by CORS"));
+};
+
 const io = new Server(httpServer, {
   cors: {
-    origin: config.clientOrigin,
+    origin: corsOriginHandler,
     credentials: true
   }
 });
 
 app.use(
   cors({
-    origin: config.clientOrigin,
+    origin: corsOriginHandler,
     credentials: true
   })
 );
@@ -39,6 +68,7 @@ app.get("/health", (_req, res) => {
 
 app.use("/api/auth", authRouter);
 app.use("/api/users", userRouter);
+app.use("/api/friends", friendRouter);
 app.use("/api/media", mediaRouter);
 app.use("/api/rooms", roomRouter);
 app.use("/api/admin", adminRouter);
@@ -66,6 +96,6 @@ process.on("SIGTERM", () => {
 
 await ensureMediaDirectories();
 
-httpServer.listen(config.port, () => {
-  console.log(`API listening on http://localhost:${config.port}`);
+httpServer.listen(config.port, config.host, () => {
+  console.log(`API listening on http://${config.host}:${config.port}`);
 });

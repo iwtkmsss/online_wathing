@@ -28,6 +28,100 @@ body {
 }
 
 button,
-input {
+input,
+select,
+video {
   font: inherit;
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.side-decor {
+  --side-decor-glow: rgba(57, 255, 20, 0.2);
+  --side-decor-glow-strong: rgba(57, 255, 20, 0.36);
+  --side-decor-glow-soft: rgba(0, 235, 190, 0.18);
+  --side-decor-shadow-y: clamp(14px, 1.1vw, 28px);
+  --side-decor-shadow-blur: clamp(18px, 1.4vw, 34px);
+  --side-decor-glow-blur: clamp(12px, 0.9vw, 24px);
+  --side-decor-glow-soft-blur: clamp(24px, 1.8vw, 52px);
+  --side-decor-hover-shadow-y: clamp(16px, 1.2vw, 30px);
+  --side-decor-hover-shadow-blur: clamp(20px, 1.5vw, 36px);
+  --side-decor-hover-glow-blur: clamp(20px, 1.35vw, 32px);
+  --side-decor-hover-glow-soft-blur: clamp(34px, 2.2vw, 62px);
+  --side-decor-hover-shift: clamp(3px, 0.22vw, 6px);
+  --side-decor-hover-shift-negative: clamp(-6px, -0.22vw, -3px);
+  pointer-events: auto;
+  filter: drop-shadow(0 var(--side-decor-shadow-y) var(--side-decor-shadow-blur) rgba(0, 0, 0, 0.55))
+    drop-shadow(0 0 var(--side-decor-glow-blur) var(--side-decor-glow))
+    drop-shadow(0 0 var(--side-decor-glow-soft-blur) var(--side-decor-glow-soft));
+  transition: filter 420ms ease;
+}
+
+.side-decor-official {
+  --side-decor-glow: rgba(57, 255, 20, 0.24);
+  --side-decor-glow-strong: rgba(57, 255, 20, 0.44);
+  --side-decor-glow-soft: rgba(0, 235, 190, 0.2);
+}
+
+.side-decor-alt {
+  --side-decor-glow: rgba(155, 92, 255, 0.28);
+  --side-decor-glow-strong: rgba(155, 92, 255, 0.48);
+  --side-decor-glow-soft: rgba(255, 77, 210, 0.22);
+}
+
+.side-decor img {
+  filter: saturate(0.92) contrast(1.03);
+  transition:
+    filter 420ms ease,
+    opacity 420ms ease,
+    transform 420ms ease;
+}
+
+.side-decor::after {
+  position: absolute;
+  inset: 64% 18% 3%;
+  z-index: -1;
+  border-radius: 999px;
+  background:
+    radial-gradient(circle, var(--side-decor-glow-strong), transparent 62%),
+    radial-gradient(circle, var(--side-decor-glow-soft), transparent 70%);
+  content: "";
+  filter: blur(clamp(12px, 1.1vw, 26px));
+  opacity: 0.45;
+  transition:
+    opacity 420ms ease,
+    transform 420ms ease;
+}
+
+.side-decor:hover {
+  filter: drop-shadow(0 var(--side-decor-hover-shadow-y) var(--side-decor-hover-shadow-blur) rgba(0, 0, 0, 0.62))
+    drop-shadow(0 0 var(--side-decor-hover-glow-blur) var(--side-decor-glow-strong))
+    drop-shadow(0 0 var(--side-decor-hover-glow-soft-blur) var(--side-decor-glow-soft));
+}
+
+.side-decor:hover img {
+  filter: saturate(1.12) contrast(1.08) brightness(1.05);
+}
+
+.side-decor-left:hover img {
+  transform: translateX(var(--side-decor-hover-shift)) scale(1.025);
+}
+
+.side-decor-right:hover img {
+  transform: translateX(var(--side-decor-hover-shift-negative)) scale(1.025);
+}
+
+.side-decor:hover::after {
+  opacity: 0.95;
+  transform: scale(1.08);
 }

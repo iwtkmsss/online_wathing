@@ -1,6 +1,7 @@
 import { Router } from "express";
 import {
   createRoom,
+  deleteRoom,
   findRoomOrThrow,
   listPublicRooms,
   roomDto,
@@ -60,7 +61,21 @@ roomRouter.patch(
     const roomId = routeParam(req.params.id, "id");
     const requesterId = requiredString(req.body?.requesterId, "requesterId", 80);
     const mediaId = req.body?.mediaId === null ? null : requiredString(req.body?.mediaId, "mediaId", 80);
-    const room = await selectRoomMedia({ roomId, requesterId, mediaId });
+    const participantUserIds = Array.isArray(req.body?.participantUserIds)
+      ? req.body.participantUserIds.filter((userId: unknown): userId is string => typeof userId === "string")
+      : undefined;
+    const room = await selectRoomMedia({ roomId, requesterId, mediaId, participantUserIds });
+
+    res.json({ room });
+  })
+);
+
+roomRouter.delete(
+  "/:id",
+  asyncHandler(async (req, res) => {
+    const roomId = routeParam(req.params.id, "id");
+    const requesterId = requiredString(req.body?.requesterId, "requesterId", 80);
+    const room = await deleteRoom({ roomId, requesterId });
 
     res.json({ room });
   })

@@ -1,9 +1,3 @@
-/*
-  Warnings:
-
-  - Added the required column `libraryKey` to the `Media` table without a default value. This is not possible if the table is not empty.
-
-*/
 -- RedefineTables
 PRAGMA defer_foreign_keys=ON;
 PRAGMA foreign_keys=OFF;
@@ -26,7 +20,27 @@ CREATE TABLE "new_Media" (
     "parentId" TEXT,
     CONSTRAINT "Media_parentId_fkey" FOREIGN KEY ("parentId") REFERENCES "Media" ("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
-INSERT INTO "new_Media" ("createdAt", "description", "durationSeconds", "episodeNumber", "filePath", "id", "mimeType", "parentId", "seasonNumber", "sizeBytes", "title", "type", "updatedAt") SELECT "createdAt", "description", "durationSeconds", "episodeNumber", "filePath", "id", "mimeType", "parentId", "seasonNumber", "sizeBytes", "title", "type", "updatedAt" FROM "Media";
+INSERT INTO "new_Media" ("createdAt", "description", "durationSeconds", "episodeNumber", "filePath", "id", "libraryKey", "mimeType", "parentId", "seasonNumber", "sizeBytes", "title", "type", "updatedAt")
+SELECT
+    "createdAt",
+    "description",
+    "durationSeconds",
+    "episodeNumber",
+    "filePath",
+    "id",
+    CASE
+        WHEN "filePath" IS NOT NULL THEN 'file:' || lower(replace("filePath", '\', '/'))
+        WHEN "type" = 'SERIES' THEN 'series:' || lower(trim("title"))
+        ELSE 'legacy:' || "id"
+    END,
+    "mimeType",
+    "parentId",
+    "seasonNumber",
+    "sizeBytes",
+    "title",
+    "type",
+    "updatedAt"
+FROM "Media";
 DROP TABLE "Media";
 ALTER TABLE "new_Media" RENAME TO "Media";
 CREATE UNIQUE INDEX "Media_libraryKey_key" ON "Media"("libraryKey");

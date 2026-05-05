@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { prisma } from "../lib/prisma.js";
+import { findUserByNicknameInsensitive } from "../services/userService.js";
 import { mediaDto } from "../utils/dto.js";
 import { asyncHandler, HttpError } from "../utils/http.js";
 import { routeParam } from "../utils/params.js";
@@ -11,7 +12,7 @@ authRouter.post(
   "/nickname",
   asyncHandler(async (req, res) => {
     const nickname = normalizeNickname(req.body?.nickname);
-    const existingUser = await prisma.user.findUnique({ where: { nickname } });
+    const existingUser = await findUserByNicknameInsensitive(nickname);
 
     if (existingUser) {
       res.json({ user: existingUser, created: false });
@@ -23,7 +24,10 @@ authRouter.post(
       res.status(201).json({ user, created: true });
     } catch (error) {
       if (typeof error === "object" && error !== null && "code" in error && error.code === "P2002") {
-        const user = await prisma.user.findUnique({ where: { nickname } });
+        const user = await findUserByNicknameInsensitive(nickname);
+        if (!user) {
+          throw new HttpError(409, "Nickname is already taken");
+        }
         res.json({ user, created: false });
         return;
       }
@@ -77,6 +81,11 @@ userRouter.patch(
   asyncHandler(async (req, res) => {
     const userId = routeParam(req.params.id, "id");
     const nickname = normalizeNickname(req.body?.nickname);
+    const userWithNickname = await findUserByNicknameInsensitive(nickname);
+
+    if (userWithNickname && userWithNickname.id !== userId) {
+      throw new HttpError(409, "Nickname is already taken");
+    }
 
     try {
       const user = await prisma.user.update({

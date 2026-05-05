@@ -1,6 +1,7 @@
 import type { Media, Room, User } from "../generated/prisma/client.js";
 import { prisma } from "../lib/prisma.js";
 import { assertPlayableMediaFile } from "./mediaService.js";
+import { resolveResumeTimeSeconds } from "./progressService.js";
 import { mediaDto } from "../utils/dto.js";
 import { HttpError } from "../utils/http.js";
 import { hashPassword, verifyPassword } from "../utils/password.js";
@@ -101,6 +102,13 @@ export const createRoom = async (input: {
     await assertPlayableMediaFile(input.mediaId);
   }
 
+  const resumeTimeSeconds = input.mediaId
+    ? await resolveResumeTimeSeconds({
+        creatorId: input.creatorId,
+        mediaId: input.mediaId
+      })
+    : 0;
+
   const room = await prisma.room.create({
     data: {
       name: input.name,
@@ -108,7 +116,7 @@ export const createRoom = async (input: {
       passwordHash: input.password ? hashPassword(input.password) : null,
       creatorId: input.creatorId,
       mediaId: input.mediaId,
-      currentTimeSeconds: 0,
+      currentTimeSeconds: resumeTimeSeconds,
       isPlaying: false,
       playbackRate: 1,
       lastStateAt: new Date()
@@ -139,6 +147,7 @@ export const selectRoomMedia = async (input: {
   roomId: string;
   requesterId: string;
   mediaId: string | null;
+  participantUserIds?: string[];
 }) => {
   const room = await findRoomOrThrow(input.roomId);
   assertRoomCreator(room, input.requesterId);
@@ -147,11 +156,19 @@ export const selectRoomMedia = async (input: {
     await assertPlayableMediaFile(input.mediaId);
   }
 
+  const resumeTimeSeconds = input.mediaId
+    ? await resolveResumeTimeSeconds({
+        creatorId: room.creatorId,
+        mediaId: input.mediaId,
+        participantUserIds: input.participantUserIds
+      })
+    : 0;
+
   const updatedRoom = await prisma.room.update({
     where: { id: input.roomId },
     data: {
       mediaId: input.mediaId,
-      currentTimeSeconds: 0,
+      currentTimeSeconds: resumeTimeSeconds,
       isPlaying: false,
       playbackRate: 1,
       lastStateAt: new Date()
@@ -160,6 +177,20 @@ export const selectRoomMedia = async (input: {
   });
 
   return roomDto(updatedRoom);
+};
+
+export const deleteRoom = async (input: {
+  roomId: string;
+  requesterId: string;
+}) => {
+  const room = await findRoomOrThrow(input.roomId);
+  assertRoomCreator(room, input.requesterId);
+
+  await prisma.room.delete({
+    where: { id: input.roomId }
+  });
+
+  return roomDto(room);
 };
 
 export const updatePlaybackState = async (input: {
